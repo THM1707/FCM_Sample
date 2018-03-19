@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/activity_main"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <EditText
+        android:id="@+id/et_message"
+        android:elevation="5dp"
+        android:hint="@string/msg_your_message"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/tv_push_message"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:hint="@string/msg_no_mes_yet"
+        android:textColor="@color/colorPrimary"
+        android:textSize="26sp"/>
+
+    <TextView
+        android:id="@+id/tv_reg_id"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5"
+        android:hint="@string/msg_reg_id"/>
+
+    <Button
+        android:id="@+id/bt_noti"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:onClick="onHit"
+        android:text="@string/action_send_noti"/>
+</LinearLayout>

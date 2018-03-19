@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">FCM_Example</string>
+    <string name="channel_name">Firebase</string>
+    <string name="channel_description">Notification send from firebase</string>
+    <string name="action_send_noti">Send Notification</string>
+    <string name="msg_no_mes_yet">No message yet</string>
+    <string name="msg_reg_id">Application Register Id</string>
+    <string name="msg_your_message">Your message here</string>
+</resources>
