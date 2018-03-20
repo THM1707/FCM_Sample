@@ -37,7 +37,6 @@ import java.util.List;
  * Created by Ravi on 31/03/15.
  */
 public class NotificationUtils {
-    private static String TAG = NotificationUtils.class.getSimpleName();
     private Context mContext;
 
     public NotificationUtils(Context mContext) {
@@ -47,6 +46,10 @@ public class NotificationUtils {
     public void showNotificationMessage(String title, String message, String timeStamp,
                                         Intent intent) {
         showNotificationMessage(title, message, timeStamp, intent, null);
+    }
+
+    public void showNotificationMessage(String title, String message, Intent intent) {
+        showNotificationMessage(title, message, null, intent, null);
     }
 
     public void showNotificationMessage(final String title, final String body,
@@ -107,7 +110,6 @@ public class NotificationUtils {
         NotificationCompat.BigPictureStyle bigPictureStyle =
             new NotificationCompat.BigPictureStyle();
         bigPictureStyle.setBigContentTitle(title);
-        bigPictureStyle.setSummaryText(Html.fromHtml(message).toString());
         bigPictureStyle.bigPicture(bitmap);
         Notification notification;
         notification = mBuilder.setSmallIcon(icon).setTicker(title).setWhen(0)
@@ -117,8 +119,8 @@ public class NotificationUtils {
             .setSound(alarmSound)
             .setStyle(bigPictureStyle)
             .setWhen(getTimeMilliSec(timeStamp))
-            .setSmallIcon(R.mipmap.ic_launcher)
             .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), icon))
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentText(message)
             .build();
         NotificationManager notificationManager =
@@ -137,8 +139,7 @@ public class NotificationUtils {
             connection.setDoInput(true);
             connection.connect();
             InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            return myBitmap;
+            return BitmapFactory.decodeStream(input);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -194,13 +195,6 @@ public class NotificationUtils {
     }
 
     public static long getTimeMilliSec(String timeStamp) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        try {
-            Date date = format.parse(timeStamp);
-            return date.getTime();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return 0;
+        return 1000 * Long.parseLong(timeStamp);
     }
 }

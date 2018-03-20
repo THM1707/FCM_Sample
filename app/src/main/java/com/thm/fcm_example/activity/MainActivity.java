@@ -1,13 +1,10 @@
 package com.thm.fcm_example.activity;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -32,17 +29,15 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private BroadcastReceiver mRegistrationBroadcastReceiver;
-    private TextView mTextRegId, mTextMessage;
+    private TextView mTextMessage;
     private EditText mEditMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mTextRegId = findViewById(R.id.tv_reg_id);
         mTextMessage = findViewById(R.id.tv_push_message);
         mEditMessage = findViewById(R.id.et_message);
-        displayFirebaseRegId();
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -51,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
                         case Constant.REGISTRATION_COMPLETE:
                             // auto subscribe to global for all device
                             FirebaseMessaging.getInstance().subscribeToTopic(Constant.TOPIC_GLOBAL);
-                            displayFirebaseRegId();
                             break;
                         case Constant.PUSH_NOTIFICATION:
                             String message = intent.getStringExtra("message");
@@ -63,17 +57,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-    }
-
-    // Show key stored in shared pref
-    private void displayFirebaseRegId() {
-        SharedPreferences pref = getSharedPreferences(Constant.SHARED_PREF, 0);
-        String regId = pref.getString("regId", null);
-        Log.e(TAG, "Firebase reg id: " + regId);
-        if (!TextUtils.isEmpty(regId))
-            mTextRegId.setText("Firebase Reg Id: " + regId);
-        else
-            mTextRegId.setText("Firebase Reg Id is not received yet!");
     }
 
     @Override
@@ -94,11 +77,36 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    public void onHit(View view) {
+    public void sendNotification(View view) {
         String topic = "global", title = "My device";
         String body = mEditMessage.getText().toString();
         AppServiceClient.getMyApiInstance(this)
             .sendTopicMessage(topic, body, title)
+            .enqueue(new Callback<ResponseMessage>() {
+                @Override
+                public void onResponse(Call<ResponseMessage> call,
+                                       Response<ResponseMessage> response) {
+                    if (response.body() == null) {
+                        Toast.makeText(MainActivity.this, "Wrong response",
+                            Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseMessage> call, Throwable t) {
+                    Toast.makeText(MainActivity.this, "Oops something happened",
+                        Toast.LENGTH_SHORT).show();
+                }
+            });
+    }
+
+    public void sendData(View view){
+        String topic = "global", title = "My device";
+        String imageUrl = "http://kb4images.com/images/random-image/37670495-random-image.jpg";
+        Long timestamp = System.currentTimeMillis()/1000;
+        String message = mEditMessage.getText().toString();
+        AppServiceClient.getMyApiInstance(this)
+            .sendData(topic, message, title, imageUrl, timestamp)
             .enqueue(new Callback<ResponseMessage>() {
                 @Override
                 public void onResponse(Call<ResponseMessage> call,
