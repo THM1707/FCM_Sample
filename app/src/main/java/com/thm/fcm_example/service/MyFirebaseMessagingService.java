@@ -12,6 +12,7 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.thm.fcm_example.R;
+import com.thm.fcm_example.activity.MainActivity;
 import com.thm.fcm_example.activity.MessageActivity;
 import com.thm.fcm_example.app.Constant;
 import com.thm.fcm_example.util.NotificationUtils;
@@ -32,7 +33,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.e(TAG, "From: " + remoteMessage.getFrom());
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
-            handleNotification(remoteMessage.getNotification().getBody());
+            handleNotification(remoteMessage.getNotification().getBody(),
+                remoteMessage.getNotification().getTitle());
         }
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
@@ -40,16 +42,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-    private void handleNotification(String message) {
-        if (!NotificationUtils.isAppIsInBackground(getApplicationContext())) {
-            // app is in foreground, broadcast the push message
-            Intent pushNotification = new Intent(Constant.PUSH_NOTIFICATION);
-            pushNotification.putExtra("message", message);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
-            // play notification sound
-            NotificationUtils notificationUtils = new NotificationUtils(getApplicationContext());
-            notificationUtils.playNotificationSound();
-        }
+    private void handleNotification(String message, String title) {
+        // app is in foreground, broadcast the push message
+        Intent pushNotification = new Intent(Constant.PUSH_NOTIFICATION);
+        pushNotification.putExtra("message", message);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
+        // play notification sound
+        NotificationUtils notificationUtils = new NotificationUtils(getApplicationContext());
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        notificationUtils.showNotificationMessage(title, message, intent);
     }
 
     private void handleDataMessage(Map<String, String> data) {
@@ -58,28 +59,21 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             String timestamp = data.get("timestamp");
             String message = data.get("message");
             String title = data.get("title");
-            if (!NotificationUtils.isAppIsInBackground(getApplicationContext())) {
-                // app is in foreground, broadcast the push message
-                Intent pushNotification = new Intent(Constant.PUSH_NOTIFICATION);
-                pushNotification.putExtra("message", message);
-                LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
-                // play notification sound
-                NotificationUtils notificationUtils =
-                    new NotificationUtils(getApplicationContext());
-                notificationUtils.playNotificationSound();
+            // app is in foreground, broadcast the push message
+            Intent pushNotification = new Intent(Constant.PUSH_NOTIFICATION);
+            pushNotification.putExtra("message", message);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
+            // app is in background, show the notification in notification tray
+            Intent resultIntent = new Intent(getApplicationContext(), MessageActivity.class);
+            resultIntent.putExtra("message", message);
+            // check for image attachment
+            if (TextUtils.isEmpty(imageUrl)) {
+                showNotificationMessage(getApplicationContext(), title, message, timestamp,
+                    resultIntent);
             } else {
-                // app is in background, show the notification in notification tray
-                Intent resultIntent = new Intent(getApplicationContext(), MessageActivity.class);
-                resultIntent.putExtra("message", message);
-                // check for image attachment
-                if (TextUtils.isEmpty(imageUrl)) {
-                    showNotificationMessage(getApplicationContext(), title, message, timestamp,
-                        resultIntent);
-                } else {
-                    // image is present, show notification with image
-                    showNotificationMessageWithBigImage(getApplicationContext(), title, message,
-                        timestamp, resultIntent, imageUrl);
-                }
+                // image is present, show notification with image
+                showNotificationMessageWithBigImage(getApplicationContext(), title, message,
+                    timestamp, resultIntent, imageUrl);
             }
         } catch (ClassCastException e) {
             e.printStackTrace();
