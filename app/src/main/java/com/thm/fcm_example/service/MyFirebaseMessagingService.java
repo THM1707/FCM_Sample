@@ -12,12 +12,11 @@ import android.util.Log;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.thm.fcm_example.R;
-import com.thm.fcm_example.activity.MainActivity;
+import com.thm.fcm_example.activity.MessageActivity;
 import com.thm.fcm_example.app.Constant;
 import com.thm.fcm_example.util.NotificationUtils;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.Map;
 
 import static com.thm.fcm_example.app.Constant.CHANNEL_ID;
 
@@ -31,21 +30,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.e(TAG, "From: " + remoteMessage.getFrom());
-        String title = "", body = "";
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
-            title = remoteMessage.getNotification().getTitle();
-            body = remoteMessage.getNotification().getBody();
-            handleNotification(body);
-            // Check if message contains a data payload.
-            if (remoteMessage.getData().size() > 0) {
-                try {
-                    JSONObject json = new JSONObject(remoteMessage.getData().toString());
-                    handleDataMessage(json, title, body);
-                } catch (Exception e) {
-                    Log.e(TAG, "Exception: " + e.getMessage());
-                }
-            }
+            handleNotification(remoteMessage.getNotification().getBody());
+        }
+        // Check if message contains a data payload.
+        if (remoteMessage.getData().size() > 0) {
+            handleDataMessage(remoteMessage.getData());
         }
     }
 
@@ -61,16 +52,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-    private void handleDataMessage(JSONObject json, String title, String body) {
-        Log.e(TAG, "push json: " + json.toString());
+    private void handleDataMessage(Map<String, String> data) {
         try {
-            JSONObject data = json.getJSONObject("data");
-            String imageUrl = data.getString("image");
-            String timestamp = data.getString("timestamp");
+            String imageUrl = data.get("image");
+            String timestamp = data.get("timestamp");
+            String message = data.get("message");
+            String title = data.get("title");
             if (!NotificationUtils.isAppIsInBackground(getApplicationContext())) {
                 // app is in foreground, broadcast the push message
                 Intent pushNotification = new Intent(Constant.PUSH_NOTIFICATION);
-                pushNotification.putExtra("message", body);
+                pushNotification.putExtra("message", message);
                 LocalBroadcastManager.getInstance(this).sendBroadcast(pushNotification);
                 // play notification sound
                 NotificationUtils notificationUtils =
@@ -78,22 +69,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 notificationUtils.playNotificationSound();
             } else {
                 // app is in background, show the notification in notification tray
-                Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
-                resultIntent.putExtra("message", body);
+                Intent resultIntent = new Intent(getApplicationContext(), MessageActivity.class);
+                resultIntent.putExtra("message", message);
                 // check for image attachment
                 if (TextUtils.isEmpty(imageUrl)) {
-                    showNotificationMessage(getApplicationContext(), title, body, timestamp,
+                    showNotificationMessage(getApplicationContext(), title, message, timestamp,
                         resultIntent);
                 } else {
                     // image is present, show notification with image
-                    showNotificationMessageWithBigImage(getApplicationContext(), title, body,
+                    showNotificationMessageWithBigImage(getApplicationContext(), title, message,
                         timestamp, resultIntent, imageUrl);
                 }
             }
-        } catch (JSONException e) {
-            Log.e(TAG, "Json Exception: " + e.getMessage());
-        } catch (Exception e) {
-            Log.e(TAG, "Exception: " + e.getMessage());
+        } catch (ClassCastException e) {
+            e.printStackTrace();
         }
         createChannel();
     }

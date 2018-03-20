@@ -6,4 +6,5 @@
     <string name="msg_no_mes_yet">No message yet</string>
     <string name="msg_reg_id">Application Register Id</string>
     <string name="msg_your_message">Your message here</string>
+    <string name="action_send_data">Send data</string>
 </resources>

@@ -14,4 +14,10 @@ public interface MyApi {
     Call<ResponseMessage> sendTopicMessage(@Query("topic") String topic,
                                            @Query("body") String body,
                                            @Query("title") String title);
+    @POST("notification/data")
+    Call<ResponseMessage> sendData(@Query("topic") String topic,
+                                   @Query("message") String message,
+                                   @Query("title") String title,
+                                   @Query("image") String imageUrl,
+                                   @Query("timestamp") long timestamp);
 }

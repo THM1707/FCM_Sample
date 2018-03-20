@@ -7,15 +7,49 @@
     android:orientation="vertical"
     android:padding="5dp">
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:src="@drawable/im_firebase"/>
+
     <EditText
         android:id="@+id/et_message"
-        android:elevation="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/custom_round_edittext"
         android:hint="@string/msg_your_message"
         android:inputType="text"
+        android:paddingEnd="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingStart="5dp"/>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/bt_noti"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="sendNotification"
+            android:text="@string/action_send_noti"/>
+
+        <Button
+            android:id="@+id/bt_data"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="sendData"
+            android:text="@string/action_send_data"/>
+    </LinearLayout>
 
     <TextView
+        android:elevation="10dp"
         android:id="@+id/tv_push_message"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -25,18 +59,4 @@
         android:textColor="@color/colorPrimary"
         android:textSize="26sp"/>
 
-    <TextView
-        android:id="@+id/tv_reg_id"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.5"
-        android:hint="@string/msg_reg_id"/>
-
-    <Button
-        android:id="@+id/bt_noti"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:onClick="onHit"
-        android:text="@string/action_send_noti"/>
 </LinearLayout>
